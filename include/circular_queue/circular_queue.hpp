@@ -24,7 +24,7 @@ public:
   bool push(const T& value);
 
   /**
-   *  @brief Puses a new element into the queue.
+   *  @brief Pushes a new element into the queue.
    *  @param value The new value to be inserted into the queue. It will be
    *  `moved` on insertion.
    *  @returns True if the value was successfully inserted into the queue.
@@ -59,7 +59,57 @@ private:
   std::size_t tail_ = 0;
   std::size_t space_used_ = 0;
 };
+
+template <typename T, std::size_t Capacity>
+requires (Capacity > 0)
+bool CircularQueue<T, Capacity>::push(const T& value) {
+  if (this->space_used_ == Capacity) {
+    return false;
+  }
+  if (this->space_used_ == 0) {
+    this->queue_[this->head_] = value;
+    this->tail_ = this->head_;
+  } else {
+    this->queue_[this->tail_] = value;
+  }
+  this->tail_ = (this->tail_ + 1) % Capacity;
+  this->space_used_++;
+  return true;
 }
 
+template <typename T, std::size_t Capacity>
+requires (Capacity > 0)
+bool CircularQueue<T, Capacity>::push(T&& value) {
+  if (this->space_used_ == Capacity) {
+    return false;
+  }
+  if (this->space_used_ == 0) {
+    this->queue_[this->head_] = std::move(value);
+  } else {
+    this->queue_[this->tail_] = std::move(value);
+  }
+  this->tail_ = (this->tail_ + 1) % Capacity;
+  this->space_used_++;
+  return true;
+}
 
-#include "circular_queue_impl.hpp"
+template <typename T, std::size_t Capacity>
+requires (Capacity > 0)
+T* CircularQueue<T, Capacity>::front() {
+  if (this->space_used_ == 0) {
+    return nullptr;
+  }
+  return &this->queue_[this->head_];
+}
+
+template <typename T, std::size_t Capacity>
+requires (Capacity > 0)
+void CircularQueue<T, Capacity>::pop() {
+  if (this->space_used_ == 0) {
+    return;
+  }
+  this->head_ = (this->head_ + 1) % Capacity;
+  this->space_used_--;
+  return;
+}
+}
