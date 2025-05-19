@@ -33,6 +33,7 @@ bool CircularQueue<T, Capacity>::push(T&& value) {
   }
   this->tail_ = (this->tail_ + 1) % Capacity;
   this->space_used_++;
+  return true;
 }
 
 template <typename T, std::size_t Capacity>

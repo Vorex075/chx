@@ -55,9 +55,9 @@ public:
   std::size_t size() const { return this->space_used_; };
 private:
   std::array<T, Capacity> queue_;
-  std::size_t head_;
-  std::size_t tail_;
-  std::size_t space_used_;
+  std::size_t head_ = 0;
+  std::size_t tail_ = 0;
+  std::size_t space_used_ = 0;
 };
 }
 
