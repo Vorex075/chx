@@ -17,7 +17,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake g++ libdoctest-dev
+        sudo apt-get install -y cmake g++ doctest
 
     - name: Configure project
       run: cmake -S . -B build -DCHX_ENABLE_TESTS=ON
