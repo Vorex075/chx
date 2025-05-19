@@ -39,10 +39,11 @@ TEST_SUITE("CircularQueue<int, 3>") {
         CHECK(q.push(2));
         CHECK(q.push(3));
         CHECK_FALSE(q.push(4)); // full
+        CHECK(q.size() == 3);
     }
 
     TEST_CASE("Push with move works") {
-        chx::CircularQueue<std::string, 2> q;
+        chx::CircularQueue<std::string, 3> q;
         std::string name = "test";
         CHECK(q.push(std::move(name)));
         CHECK(name.empty());
@@ -51,20 +52,30 @@ TEST_SUITE("CircularQueue<int, 3>") {
     }
 
     TEST_CASE("Queue wraps around correctly") {
-        chx::CircularQueue<int, 2> q;
+        chx::CircularQueue<int, 3> q;
         CHECK(q.push(1));
         CHECK(q.push(2));
-        CHECK_FALSE(q.push(3));
+        CHECK(q.push(3));
+        CHECK_FALSE(q.push(4));
         q.pop(); // remove 1
         CHECK(q.push(4)); // should go to position 0
-        CHECK(q.size() == 2);
+        CHECK(q.size() == 3);
         CHECK(*q.front() == 2);
+        q.pop();
+        CHECK(*q.front() == 3);
         q.pop();
         CHECK(*q.front() == 4);
     }
 
     TEST_CASE("Pop on empty queue is safe") {
-        chx::CircularQueue<int, 2> q;
+        chx::CircularQueue<int, 3> q;
+        q.pop(); // should not crash
+        CHECK(q.front() == nullptr);
+        CHECK(q.size() == 0);
+        CHECK(q.push(1));
+        CHECK(q.push(2));
+        q.pop();
+        q.pop();
         q.pop(); // should not crash
         CHECK(q.front() == nullptr);
         CHECK(q.size() == 0);
