@@ -5,8 +5,7 @@
 #include <mutex>
 
 namespace chx {
-template <typename T, std::size_t Capacity>
-class ThreadSafeCircularQueue {
+template <typename T, std::size_t Capacity> class ThreadSafeCircularQueue {
 public:
   ThreadSafeCircularQueue() = default;
 
@@ -17,7 +16,7 @@ public:
    *  @returns True if the value was successfully inserted into the queue.
    *  False otherwise.
    * */
-  bool push(T&& value);
+  bool push(T &&value);
 
   /**
    *  @brief Pushes a new element into the queue.
@@ -26,14 +25,14 @@ public:
    *  @returns True if the value was successfully inserted into the queue.
    *  False otherwise.
    * */
-  bool push(const T& value);
+  bool push(const T &value);
 
   /**
    *  @brief Gets the element at the front of the queue, ensuring thread safety.
    *  @returns A pointer to the element at the front of the queue. If the queue
    *  is empty, nullprt will be returned.
    * */
-  T* front(); 
+  T *front();
 
   /**
    *  @brief Deletes the element at the front of the queue. If there is no
@@ -50,7 +49,7 @@ public:
    *  @return The number of elements left in the queue.
    * */
   std::size_t size() const { return this->queue_.size(); }
-  
+
 private:
   class CircularQueue<T, Capacity> queue_;
   mutable std::mutex mutex_;
@@ -59,19 +58,19 @@ private:
 };
 
 template <typename T, std::size_t Capacity>
-bool ThreadSafeCircularQueue<T, Capacity>::push(T&& value) {
-  std::unique_lock lock(this->mutex_); 
+bool ThreadSafeCircularQueue<T, Capacity>::push(T &&value) {
+  std::unique_lock lock(this->mutex_);
   return this->queue_.push(std::move(value));
 }
 
 template <typename T, std::size_t Capacity>
-bool ThreadSafeCircularQueue<T, Capacity>::push(const T& value) {
+bool ThreadSafeCircularQueue<T, Capacity>::push(const T &value) {
   std::unique_lock lock(this->mutex_);
   return this->queue_.push(value);
 }
 
 template <typename T, std::size_t Capacity>
-T* ThreadSafeCircularQueue<T, Capacity>::front() {
+T *ThreadSafeCircularQueue<T, Capacity>::front() {
   std::unique_lock lock(this->mutex_);
   return this->queue_.front();
 }
@@ -83,4 +82,4 @@ void ThreadSafeCircularQueue<T, Capacity>::pop() {
   return;
 }
 
-}
+} // namespace chx

@@ -1,9 +1,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
 #include "../include/circular_queue/circular_queue_thread_safe.hpp"
+#include "doctest.h"
 #include <thread>
 #include <vector>
-
 
 TEST_SUITE("ThreadSafeCircularQueue") {
   TEST_CASE("Push and pop concurrently") {
@@ -16,34 +15,35 @@ TEST_SUITE("ThreadSafeCircularQueue") {
 
     // 10 producers
     for (int i{0}; i < 10; ++i) {
-        producers.emplace_back([&] {
-            for (int j{0}; j < 50; ++j) {
-                if (q.push(j)) {
-                    ++total_pushed;
-                }
-            }
-        });
+      producers.emplace_back([&] {
+        for (int j{0}; j < 50; ++j) {
+          if (q.push(j)) {
+            ++total_pushed;
+          }
+        }
+      });
     }
 
     // 10 consumers
     for (int i = 0; i < 10; ++i) {
-        consumers.emplace_back([&] {
-            for (int j{0}; j < 50; ++j) {
-                if (q.front()) {
-                    q.pop();
-                    ++total_popped;
-                }
-            }
-        });
+      consumers.emplace_back([&] {
+        for (int j{0}; j < 50; ++j) {
+          if (q.front()) {
+            q.pop();
+            ++total_popped;
+          }
+        }
+      });
     }
 
-    for (auto& t : producers) t.join();
-    for (auto& t : consumers) t.join();
+    for (auto &t : producers)
+      t.join();
+    for (auto &t : consumers)
+      t.join();
 
     CHECK(total_pushed > 0);
     CHECK(total_popped <= total_pushed);
-}
-
+  }
 
   TEST_CASE("Works correctly with concurrent producers") {
     chx::ThreadSafeCircularQueue<int, 100> q;
@@ -60,7 +60,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
       });
     }
 
-    for (auto& t : threads) {
+    for (auto &t : threads) {
       t.join();
     }
     CHECK(pushes > 0);
