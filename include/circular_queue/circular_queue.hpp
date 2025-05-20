@@ -54,6 +54,16 @@ public:
    * */
   std::size_t size() const { return this->space_used_; };
 
+  /**
+   *  @return True if the queue is full. False otherwise.
+   * */
+  bool is_full() const { return this->space_used_ == Capacity; }
+
+  /**
+   *  @return True if the queue is empty. False otherwise.
+   * */
+  bool is_empty() const { return this->space_used_ == 0; }
+
 private:
   std::array<T, Capacity> queue_;
   std::size_t head_ = 0;
@@ -64,10 +74,10 @@ private:
 template <typename T, std::size_t Capacity>
   requires(Capacity > 0)
 bool CircularQueue<T, Capacity>::push(const T &value) {
-  if (this->space_used_ == Capacity) {
+  if (this->is_full()) {
     return false;
   }
-  if (this->space_used_ == 0) {
+  if (this->is_empty()) {
     this->queue_[this->head_] = value;
     this->tail_ = this->head_;
   } else {
@@ -81,7 +91,7 @@ bool CircularQueue<T, Capacity>::push(const T &value) {
 template <typename T, std::size_t Capacity>
   requires(Capacity > 0)
 bool CircularQueue<T, Capacity>::push(T &&value) {
-  if (this->space_used_ == Capacity) {
+  if (this->is_full()) {
     return false;
   }
   if (this->space_used_ == 0) {
@@ -97,7 +107,7 @@ bool CircularQueue<T, Capacity>::push(T &&value) {
 template <typename T, std::size_t Capacity>
   requires(Capacity > 0)
 T *CircularQueue<T, Capacity>::front() {
-  if (this->space_used_ == 0) {
+  if (this->is_empty()) {
     return nullptr;
   }
   return &this->queue_[this->head_];
@@ -106,7 +116,7 @@ T *CircularQueue<T, Capacity>::front() {
 template <typename T, std::size_t Capacity>
   requires(Capacity > 0)
 void CircularQueue<T, Capacity>::pop() {
-  if (this->space_used_ == 0) {
+  if (this->is_empty()) {
     return;
   }
   this->head_ = (this->head_ + 1) % Capacity;
