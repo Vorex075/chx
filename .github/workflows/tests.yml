@@ -23,4 +23,4 @@ jobs:
         run: make test
 
       - name: Run tests
-        run: make run test
+        run: make run_test
