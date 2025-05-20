@@ -2,29 +2,25 @@ name: chx tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake g++
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++
 
-    - name: Configure project
-      run: cmake -S . -B build -DCHX_ENABLE_TESTS=ON
+      - name: Build project and tests
+        run: make test
 
-    - name: Build
-      run: cmake --build build
-
-    - name: Run tests
-      run: cd build && ctest --output-on-failure
-
+      - name: Run tests
+        run: make run test
