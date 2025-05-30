@@ -1,22 +1,58 @@
-#ifndef CHANNEL_H
-#define CHANNEL_H
+#pragma once
 
-#include <array>
+#include <expected>
+#include <string>
 
 namespace chx {
-template <typename T, std::size_t size>
-class Channel {
 
-  explicit Channel();
+typedef std::string Error;
 
-  void send(T& value);
+template <typename T> class Channel {
+public:
+  Channel() = default;
+  virtual ~Channel() = default;
 
-  T receive(T& value);
+  /**
+   *  @brief Sends an object through the channel. This method blocks the thread
+   * until the operation is done.
+   *  @param value The object to be sent through the channel.
+   *  @returns `void` if the operation was successful. An `Error` if the
+   * operation failed.
+   * */
+  virtual std::expected<void, Error> send(T &&value) = 0;
+  virtual std::expected<void, Error> send(const T &value) = 0;
 
-  void close();
-  bool is_closed() const;
+  /**
+   *  @brief Sends an object through the channel. This method does not block
+   * the thread, so an error will be returned if the operation could not be done
+   * inmediately.
+   *  @param value The object to be sent through the channel.
+   *  @returns `void` if the operation wasa successful. An `Error` if the
+   * operation failed.
+   * */
+  virtual std::expected<void, Error> try_send(T &&value) = 0;
+  virtual std::expected<void, Error> try_send(const T &value) = 0;
+
+  /**
+   *  @brief Receives an object through the channel. This method blocks the
+   * thread until the operation is done.
+   *  @returns An object (the one received from the channel), or an `Error` if
+   * the operation failed.
+   * */
+  virtual std::expected<T, Error> receive() = 0;
+
+  /**
+   *  @brief Receives an object through the channel. This method does not block
+   *  the thread, so an error will be returned if the operation could not be
+   * done inmediately.
+   *  @param value The object to be sent through the channel.
+   *  @returns An object (the one received from the channel), or an `Error` if
+   * the operation failed.
+   * */
+  virtual std::expected<T, Error> try_receive() = 0;
+
+  virtual void close() = 0;
+  virtual bool is_closed() const = 0;
 };
-}
 
-
-#endif
+} // namespace chx
