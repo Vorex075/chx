@@ -108,7 +108,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
   TEST_CASE("push_timeout fails if queue is full") {
     chx::ThreadSafeCircularQueue<int, 1> q;
     q.push(1);
-    auto result = q.push_timeout(2, std::chrono::milliseconds(100));
+    auto result = q.push_timeout(2, std::chrono::milliseconds(1));
     CHECK_FALSE(result.has_value());
     CHECK(result.error() == "The wait for pushing timed out");
   }
@@ -127,7 +127,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
 
   TEST_CASE("pop_front_timeout fails if no element arrives in time") {
     chx::ThreadSafeCircularQueue<int, 1> q;
-    auto result = q.pop_front_timeout(std::chrono::milliseconds(100));
+    auto result = q.pop_front_timeout(std::chrono::milliseconds(1));
     CHECK_FALSE(result.has_value());
     CHECK(result.error() == "The wait for popping timed out");
   }
