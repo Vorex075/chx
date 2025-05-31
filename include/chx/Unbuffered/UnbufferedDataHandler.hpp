@@ -6,7 +6,7 @@
 
 namespace chx::unbuffered {
 template <typename T> struct DataHandler {
-  std::mutex mutex;
+  mutable std::mutex mutex;
   std::condition_variable sender_entrance;
   std::condition_variable sender_exit;
   std::condition_variable receiver_entrance;
