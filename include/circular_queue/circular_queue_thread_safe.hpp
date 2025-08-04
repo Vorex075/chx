@@ -124,10 +124,11 @@ template <typename T, std::size_t Capacity>
 std::expected<bool, std::string>
 ThreadSafeCircularQueue<T, Capacity>::push(T &&value) {
   std::unique_lock lock(this->mutex_);
-  if (this->queue_.is_empty()) {
-    this->not_empty_.notify_one();
+  if (!this->queue_.push(std::move(value))) {
+    return false;
   }
-  return this->queue_.push(std::move(value));
+  this->not_empty_.notify_one();
+  return true;
 }
 
 template <typename T, std::size_t Capacity>
@@ -135,10 +136,9 @@ std::expected<bool, std::string>
 ThreadSafeCircularQueue<T, Capacity>::push_blocking(T &&value) {
   std::unique_lock lock(this->mutex_);
   this->not_full_.wait(lock, [&] { return !this->queue_.is_full(); });
-  if (this->queue_.is_empty()) {
-    this->not_empty_.notify_one();
-  }
-  return this->queue_.push(std::move(value));
+  this->queue_.push(std::move(value));
+  this->not_empty_.notify_one();
+  return true;
 }
 
 template <typename T, std::size_t Capacity>
@@ -150,20 +150,21 @@ ThreadSafeCircularQueue<T, Capacity>::push_timeout(
                                 [&] { return !this->queue_.is_full(); })) {
     return std::unexpected("The wait for pushing timed out");
   }
-  if (this->queue_.is_empty()) {
-    this->not_empty_.notify_one();
-  }
-  return this->queue_.push(std::move(value));
+
+  this->queue_.push(std::move(value));
+  this->not_empty_.notify_one();
+  return true;
 }
 
 template <typename T, std::size_t Capacity>
 std::expected<bool, std::string>
 ThreadSafeCircularQueue<T, Capacity>::push(const T &value) {
   std::unique_lock lock(this->mutex_);
-  if (this->queue_.is_empty()) {
-    this->not_empty_.notify_one();
+  if (!this->queue_.push(value)) {
+    return false;
   }
-  return this->queue_.push(value);
+  this->not_empty_.notify_one();
+  return true;
 }
 
 template <typename T, std::size_t Capacity>
@@ -171,10 +172,9 @@ std::expected<bool, std::string>
 ThreadSafeCircularQueue<T, Capacity>::push_blocking(const T &value) {
   std::unique_lock lock(this->mutex_);
   this->not_full_.wait(lock, [&] { return !this->queue_.is_full(); });
-  if (this->queue_.is_empty()) {
-    this->not_empty_.notify_one();
-  }
-  return this->queue_.push(value);
+  this->queue_.push(value);
+  this->not_empty_.notify_one();
+  return true;
 }
 
 template <typename T, std::size_t Capacity>
@@ -186,10 +186,9 @@ ThreadSafeCircularQueue<T, Capacity>::push_timeout(
                                 [&] { return !this->queue_.is_full(); })) {
     return std::unexpected("The wait for pushing timed out");
   }
-  if (this->queue_.is_empty()) {
-    this->not_empty_.notify_one();
-  }
-  return this->queue_.push(value);
+  this->queue_.push(value);
+  this->not_empty_.notify_one();
+  return true;
 }
 
 template <typename T, std::size_t Capacity>
@@ -201,10 +200,8 @@ T *ThreadSafeCircularQueue<T, Capacity>::front() {
 template <typename T, std::size_t Capacity>
 void ThreadSafeCircularQueue<T, Capacity>::pop() {
   std::unique_lock lock(this->mutex_);
-  if (this->queue_.is_full()) {
-    this->not_full_.notify_one();
-  }
   this->queue_.pop();
+  this->not_full_.notify_one();
   return;
 }
 
@@ -216,11 +213,10 @@ ThreadSafeCircularQueue<T, Capacity>::pop_front() {
   if (value == nullptr) {
     return std::unexpected("The queue is empty");
   }
-  if (this->queue_.is_full()) {
-    this->not_full_.notify_one();
-  }
+
   T value_to_return{std::move(*value)};
   this->queue_.pop();
+  this->not_full_.notify_one();
   return value_to_return;
 }
 
@@ -230,11 +226,9 @@ ThreadSafeCircularQueue<T, Capacity>::pop_front_blocking() {
   std::unique_lock lock(this->mutex_);
   this->not_empty_.wait(lock, [&] { return !this->queue_.is_empty(); });
   // The queue is not empty
-  if (this->queue_.is_full()) {
-    this->not_full_.notify_one();
-  }
   T value = std::move(*this->queue_.front());
   this->queue_.pop();
+  this->not_full_.notify_one();
   return value;
 }
 
@@ -248,11 +242,9 @@ ThreadSafeCircularQueue<T, Capacity>::pop_front_timeout(
     return std::unexpected("The wait for popping timed out");
   }
   // The queue is not empty
-  if (this->queue_.is_full()) {
-    this->not_full_.notify_one();
-  }
   T value = std::move(*this->queue_.front());
   this->queue_.pop();
+  this->not_full_.notify_one();
   return value;
 }
 

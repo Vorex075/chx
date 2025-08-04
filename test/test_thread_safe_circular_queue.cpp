@@ -6,6 +6,7 @@
 
 TEST_SUITE("ThreadSafeCircularQueue") {
   TEST_CASE("Push and pop concurrently") {
+	std::cout << "test1";
     chx::ThreadSafeCircularQueue<int, 100> q;
 
     std::vector<std::thread> producers;
@@ -46,6 +47,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
   }
 
   TEST_CASE("Works correctly with concurrent producers") {
+	std::cout << "test2";
     chx::ThreadSafeCircularQueue<int, 100> q;
     std::atomic<int> pushes = 0;
 
@@ -68,6 +70,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
   }
 
   TEST_CASE("Works correctly with producers and consumers") {
+	std::cout << "test3";
     chx::ThreadSafeCircularQueue<int, 50> q;
     std::atomic<int> total_pushed = 0;
     std::atomic<int> total_popped = 0;
@@ -98,6 +101,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
     CHECK(total_pushed > 0);
   }
   TEST_CASE("push() notifies not_empty_ only if queue was empty") {
+	std::cout << "test4";
     chx::ThreadSafeCircularQueue<int, 2> q;
     CHECK(q.push(1).value());
     CHECK(q.push(2).value());
@@ -106,6 +110,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
   }
 
   TEST_CASE("push_timeout fails if queue is full") {
+	std::cout << "test5";
     chx::ThreadSafeCircularQueue<int, 1> q;
     q.push(1);
     auto result = q.push_timeout(2, std::chrono::milliseconds(1));
@@ -114,6 +119,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
   }
 
   TEST_CASE("pop_front_blocking waits until an element is available") {
+	std::cout << "test5";
     chx::ThreadSafeCircularQueue<int, 1> q;
     std::thread producer([&]() {
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -126,6 +132,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
   }
 
   TEST_CASE("pop_front_timeout fails if no element arrives in time") {
+	std::cout << "test6";
     chx::ThreadSafeCircularQueue<int, 1> q;
     auto result = q.pop_front_timeout(std::chrono::milliseconds(1));
     CHECK_FALSE(result.has_value());
@@ -133,6 +140,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
   }
 
   TEST_CASE("pop_front notifies not_full_ if queue was full") {
+	std::cout << "test7";
     chx::ThreadSafeCircularQueue<int, 2> q;
     q.push(1);
     q.push(2);
@@ -143,6 +151,7 @@ TEST_SUITE("ThreadSafeCircularQueue") {
   }
 
   TEST_CASE("multiple producers and consumers") {
+	std::cout << "test8";
     chx::ThreadSafeCircularQueue<int, 10> q;
     std::atomic<int> total_produced = 0;
     std::atomic<int> total_consumed = 0;
