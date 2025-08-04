@@ -2,6 +2,7 @@
 #include "chx/Unbuffered/UnbufferedChannel.hpp"
 #include "doctest.h"
 #include <atomic>
+#include <latch>
 #include <thread>
 #include <vector>
 
@@ -41,11 +42,15 @@ TEST_SUITE("UnbufferedChannel") {
     Channel<int> ch;
     std::atomic<bool> ok{false};
 
+    std::latch recv_ready{1};
     std::thread receiver_block([&] {
+      recv_ready.count_down();
       auto v = ch.receive();
       REQUIRE(v.has_value());
       ok = (v.value() == 123);
     });
+
+    recv_ready.wait();
 
     std::thread sender([&] {
       auto error = ch.try_send(123);
@@ -58,7 +63,14 @@ TEST_SUITE("UnbufferedChannel") {
 
     ok = false;
 
-    std::thread sender_block([&] { auto v = ch.send(42); });
+    std::latch send_ready{1};
+
+    std::thread sender_block([&] {
+      send_ready.count_down();
+      auto v = ch.send(42);
+    });
+
+    send_ready.wait();
 
     std::thread receiver([&] {
       auto v = ch.try_receive();
