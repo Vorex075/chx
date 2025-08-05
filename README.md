@@ -1,8 +1,8 @@
 # chx
-A lightweight go-like channel library for cpp23+.
+A **lightweight go-like channel** library for cpp23+.
 
 > [!NOTE]
-> This proyect is still not finished. Still, you can create issues if you find any problem or have any suggestions.
+> This project is **still in progress**, but you can create issues if you encounter any problems or have suggestions.
 
 ---
 The library includes:
@@ -10,20 +10,20 @@ The library includes:
 - **ThreadSafeCircularQueue**: Is kind of a buffered channel. Might be removed in the future.
 
 ---
-## Future work
+### Future work
 I plan to:
 - Create a `Buffered Channel`, instead of the `ThreadSafeCircularQueue`
-- Add a select-like structure.
-- Add waitgroup struct for syncronization.
+- Add a **select-like** structure.
+- Add **waitgroup** struct for syncronization.
 
 --- 
-## Requirements
-This proyect requires **cpp23** or above, since it uses `std::expected`.
+### Requirements
+This project requires **cpp23** or above, since it uses `std::expected`.
 In order to execute the tests, you will need **cmake 3.28** or above.
 
 ---
 
-## Testing
+### Testing
 You can **run all tests** in you local machine easily. Clone the repo and use:
 ``` bash
 make tests
