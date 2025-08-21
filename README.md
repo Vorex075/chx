@@ -2,7 +2,7 @@
 A **lightweight go-like channel** library for cpp23+.
 
 > [!NOTE]
-> This project is **still in progress**, but you can create issues if you encounter any problems or have suggestions.
+> This project is **still in development**, but you can create issues if you encounter any problems or have suggestions.
 
 ---
 The library includes:
