@@ -13,7 +13,6 @@ template <typename T> struct DataHandler {
   bool value_set = false;
   std::optional<T> slot;
   bool closed = false;
-  unsigned int senders_waiting = 0;
   unsigned int receivers_waiting = 0;
 };
 
