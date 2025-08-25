@@ -40,8 +40,8 @@ private:
 template <typename T, std::size_t Capacity> void Channel<T, Capacity>::close() {
   std::lock_guard lock(this->data_.mutex);
   this->data_.closed = true;
-  this->data_.receiver_entrance.notify_all();
-  this->data_.sender_entrance.notify_all();
+  this->data_.not_empty.notify_all();
+  this->data_.not_full.notify_all();
   return;
 }
 
@@ -58,7 +58,7 @@ std::expected<void, Error> Channel<T, Capacity>::send(const T &value) {
 
 template <typename T, std::size_t Capacity>
 std::expected<void, Error> Channel<T, Capacity>::send(T &&value) {
-  return this->send_(value);
+  return this->send_(std::move(value));
 }
 
 template <typename T, std::size_t Capacity>
@@ -68,7 +68,7 @@ std::expected<void, Error> Channel<T, Capacity>::try_send(const T &value) {
 
 template <typename T, std::size_t Capacity>
 std::expected<void, Error> Channel<T, Capacity>::try_send(T &&value) {
-  return this->try_send_(value);
+  return this->try_send_(std::move(value));
 }
 
 template <typename T, std::size_t Capacity>
@@ -76,12 +76,12 @@ template <typename U>
   requires std::constructible_from<T, U &&>
 std::expected<void, Error> Channel<T, Capacity>::send_(U &&value) {
   std::unique_lock lock(this->data_.mutex);
-  this->data_.not_full.wait_(
+  this->data_.not_full.wait(
       lock, [&] { return !this->data_.queue.is_full() || this->data_.closed; });
   if (this->data_.closed) {
     return std::unexpected("channel closed");
   }
-  this->data_.queue.push(std::forward<T>(value));
+  this->data_.queue.push(std::forward<U>(value));
   this->data_.not_empty.notify_one();
   return {};
 }
@@ -97,7 +97,7 @@ std::expected<void, Error> Channel<T, Capacity>::try_send_(U &&value) {
   if (this->data_.queue.is_full()) {
     return std::unexpected("cannot send inmediatly since the buffer is full");
   }
-  this->data_.queue.push(std::forward<T>(value));
+  this->data_.queue.push(std::forward<U>(value));
   this->data_.not_empty.notify_one();
   return {};
 }
@@ -105,7 +105,7 @@ std::expected<void, Error> Channel<T, Capacity>::try_send_(U &&value) {
 template <typename T, std::size_t Capacity>
 std::expected<T, Error> Channel<T, Capacity>::receive() {
   std::unique_lock lock(this->data_.mutex);
-  this->data_.not_empty.wait_(lock, [&] {
+  this->data_.not_empty.wait(lock, [&] {
     return !this->data_.queue.is_empty() || this->data_.closed;
   });
   if (this->data_.closed) {
@@ -129,7 +129,7 @@ std::expected<T, Error> Channel<T, Capacity>::try_receive() {
   }
   auto value = std::move(*this->data_.queue.front());
   this->data_.queue.pop();
-  this->data_.not_empty.notify_one();
+  this->data_.not_full.notify_one();
   return value;
 }
 } // namespace chx::buffered
