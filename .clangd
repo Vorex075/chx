@@ -1,0 +1,13 @@
+CompileFlags:
+  Add:
+    - -std=c++23
+    - -I/usr/include/c++/13
+    - -I/usr/include/x86_64-linux-gnu/c++/13
+    - -I/usr/include
+
+# Opcional: mejora la autocompletación e indexado
+clangd:
+  InlayHints:
+    ParameterNames: true
+    DeducedTypes: true
+  SemanticHighlighting: true
