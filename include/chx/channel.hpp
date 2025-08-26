@@ -1,16 +1,14 @@
 #pragma once
 
-#include <expected>
-#include <string>
+#include "channelCore.hpp"
+#include <memory>
 
 namespace chx {
 
-typedef std::string Error;
-
 template <typename T> class Channel {
 public:
-  Channel() = default;
-  virtual ~Channel() = default;
+  Channel(std::shared_ptr<ChannelCore<T>> core) : core_(core) {}
+  ~Channel() = default;
 
   /**
    *  @brief Sends an object through the channel. This method blocks the thread
@@ -19,8 +17,10 @@ public:
    *  @returns `void` if the operation was successful. An `Error` if the
    * operation failed.
    * */
-  virtual std::expected<void, Error> send(T &&value) = 0;
-  virtual std::expected<void, Error> send(const T &value) = 0;
+  std::expected<void, Error> send(T &&value) {
+    return core_->send(std::move(value));
+  }
+  std::expected<void, Error> send(const T &value) { return core_->send(value); }
 
   /**
    *  @brief Sends an object through the channel. This method does not block
@@ -30,8 +30,12 @@ public:
    *  @returns `void` if the operation wasa successful. An `Error` if the
    * operation failed.
    * */
-  virtual std::expected<void, Error> try_send(T &&value) = 0;
-  virtual std::expected<void, Error> try_send(const T &value) = 0;
+  std::expected<void, Error> try_send(T &&value) {
+    return core_->try_send(std::move(value));
+  }
+  std::expected<void, Error> try_send(const T &value) {
+    return core_->try_send(value);
+  }
 
   /**
    *  @brief Receives an object through the channel. This method blocks the
@@ -39,7 +43,7 @@ public:
    *  @returns An object (the one received from the channel), or an `Error` if
    * the operation failed.
    * */
-  virtual std::expected<T, Error> receive() = 0;
+  std::expected<T, Error> receive() { return core_->receive(); };
 
   /**
    *  @brief Receives an object through the channel. This method does not block
@@ -49,10 +53,9 @@ public:
    *  @returns An object (the one received from the channel), or an `Error` if
    * the operation failed.
    * */
-  virtual std::expected<T, Error> try_receive() = 0;
+  std::expected<T, Error> try_receive() { return core_->try_receive(); };
 
-  virtual void close() = 0;
-  virtual bool is_closed() const = 0;
+  std::shared_ptr<ChannelCore<T>> core_;
 };
 
 } // namespace chx
