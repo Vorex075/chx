@@ -43,7 +43,7 @@ public:
    *  @returns An object (the one received from the channel), or an `Error` if
    * the operation failed.
    * */
-  std::expected<T, Error> receive() { return core_->receive(); };
+  std::expected<T, Error> receive() { return core_->receive(); }
 
   /**
    *  @brief Receives an object through the channel. This method does not block
@@ -53,10 +53,10 @@ public:
    *  @returns An object (the one received from the channel), or an `Error` if
    * the operation failed.
    * */
-  std::expected<T, Error> try_receive() { return core_->try_receive(); };
+  std::expected<T, Error> try_receive() { return core_->try_receive(); }
 
-  virtual void close();
-  virtual bool is_closed();
+  void close() { return core_->close(); }
+  bool is_closed() { return core_->is_closed(); }
 
 private:
   std::shared_ptr<ChannelCore<T>> core_;
