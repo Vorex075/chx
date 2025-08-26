@@ -1,9 +1,12 @@
 #pragma once
 
-#include "channelCore.hpp"
+#include "chx/channelCore.hpp"
 #include <memory>
 
 namespace chx {
+
+template <typename T> class ReceiverChannel;
+template <typename T> class SenderChannel;
 
 template <typename T> class Channel {
 public:
@@ -57,6 +60,9 @@ public:
 
   void close() { return core_->close(); }
   bool is_closed() { return core_->is_closed(); }
+
+  friend ReceiverChannel<T>;
+  friend SenderChannel<T>;
 
 private:
   std::shared_ptr<ChannelCore<T>> core_;
