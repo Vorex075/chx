@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../channel.hpp"
+#include "chx/Buffered/circular_queue.hpp"
+#include "chx/channel.hpp"
 #include "chx/channelCore.hpp"
-#include "circular_queue.hpp"
 #include <condition_variable>
 #include <mutex>
 #include <utility>
