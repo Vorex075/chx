@@ -7,7 +7,7 @@
 #include <utility>
 
 namespace chx::unbuffered {
-template <typename T> class Channel : public chx::Channel<T> {
+template <typename T> class Channel : public chx::ChannelCore<T> {
 public:
   Channel()
       : chx::Channel<T>(), value_set(false), closed(false),

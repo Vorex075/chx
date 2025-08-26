@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../channel.hpp"
+#include "chx/channelCore.hpp"
 #include "circular_queue.hpp"
 #include <condition_variable>
 #include <mutex>
@@ -9,7 +10,7 @@
 namespace chx::buffered {
 
 template <typename T, std::size_t Capacity>
-class Channel : public chx::Channel<T> {
+class Channel : public chx::ChannelCore<T> {
 public:
   Channel() : chx::Channel<T>(), closed(false) {}
   Channel(const Channel<T, Capacity> &ch) = delete;
