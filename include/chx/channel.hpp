@@ -55,6 +55,10 @@ public:
    * */
   std::expected<T, Error> try_receive() { return core_->try_receive(); };
 
+  virtual void close();
+  virtual bool is_closed();
+
+private:
   std::shared_ptr<ChannelCore<T>> core_;
 };
 

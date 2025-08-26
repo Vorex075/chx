@@ -50,6 +50,9 @@ public:
    * the operation failed.
    * */
   virtual std::expected<T, Error> try_receive() = 0;
+
+  virtual void close();
+  virtual bool is_closed();
 };
 
 } // namespace chx
