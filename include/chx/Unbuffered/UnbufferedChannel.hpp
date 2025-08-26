@@ -1,14 +1,17 @@
 #pragma once
 
-#include "UnbufferedDataHandler.hpp"
 #include "chx/channel.hpp"
+#include <condition_variable>
 #include <mutex>
+#include <optional>
 #include <utility>
 
 namespace chx::unbuffered {
 template <typename T> class Channel : public chx::Channel<T> {
 public:
-  Channel() : chx::Channel<T>(), data_() {}
+  Channel()
+      : chx::Channel<T>(), value_set(false), closed(false),
+        receivers_waiting(0) {}
   Channel(const Channel<T> &ch) = delete;
   ~Channel() = default;
 
@@ -34,20 +37,27 @@ private:
     requires std::constructible_from<T, U &&>
   std::expected<void, Error> try_send_(U &&value);
 
-  DataHandler<T> data_;
+  mutable std::mutex mutex;
+  std::condition_variable sender_entrance;
+  std::condition_variable sender_exit;
+  std::condition_variable receiver_entrance;
+  bool value_set = false;
+  std::optional<T> slot;
+  bool closed = false;
+  unsigned int receivers_waiting = 0;
 };
 
 template <typename T> void Channel<T>::close() {
-  std::lock_guard lock(this->data_.mutex);
-  this->data_.closed = true;
-  this->data_.receiver_entrance.notify_all();
-  this->data_.sender_entrance.notify_all();
+  std::lock_guard lock(this->mutex);
+  this->closed = true;
+  this->receiver_entrance.notify_all();
+  this->sender_entrance.notify_all();
   return;
 }
 
 template <typename T> bool Channel<T>::is_closed() const {
-  std::lock_guard lock(this->data_.mutex);
-  return this->data_.closed == true;
+  std::lock_guard lock(this->mutex);
+  return this->closed == true;
 }
 
 template <typename T>
@@ -73,18 +83,18 @@ template <typename T>
 template <typename U>
   requires std::constructible_from<T, U &&>
 std::expected<void, Error> Channel<T>::send_(U &&value) {
-  std::unique_lock lock(this->data_.mutex);
-  this->data_.sender_entrance.wait(
-      lock, [&] { return !this->data_.value_set || this->data_.closed; });
-  if (this->data_.closed) {
+  std::unique_lock lock(this->mutex);
+  this->sender_entrance.wait(lock,
+                             [&] { return !this->value_set || this->closed; });
+  if (this->closed) {
     return std::unexpected("channel closed");
   }
-  this->data_.slot.emplace(std::forward<U>(value));
-  this->data_.value_set = true;
-  this->data_.receiver_entrance.notify_one();
+  this->slot.emplace(std::forward<U>(value));
+  this->value_set = true;
+  this->receiver_entrance.notify_one();
 
-  this->data_.sender_exit.wait(lock);
-  this->data_.sender_entrance.notify_one();
+  this->sender_exit.wait(lock);
+  this->sender_entrance.notify_one();
 
   return {};
 }
@@ -93,55 +103,55 @@ template <typename T>
 template <typename U>
   requires std::constructible_from<T, U &&>
 std::expected<void, Error> Channel<T>::try_send_(U &&value) {
-  std::unique_lock lock(this->data_.mutex);
-  if (this->data_.value_set) {
+  std::unique_lock lock(this->mutex);
+  if (this->value_set) {
     return std::unexpected("cannot send instantly");
   }
-  if (this->data_.closed) {
+  if (this->closed) {
     return std::unexpected("channel closed");
   }
-  if (this->data_.receivers_waiting == 0) {
+  if (this->receivers_waiting == 0) {
     return std::unexpected("cannot send instantly");
   }
-  this->data_.slot.emplace(std::forward<U>(value));
-  this->data_.value_set = true;
-  this->data_.receiver_entrance.notify_one();
+  this->slot.emplace(std::forward<U>(value));
+  this->value_set = true;
+  this->receiver_entrance.notify_one();
 
-  this->data_.sender_exit.wait(lock);
-  this->data_.sender_entrance.notify_one();
+  this->sender_exit.wait(lock);
+  this->sender_entrance.notify_one();
   return {};
 }
 
 template <typename T> std::expected<T, Error> Channel<T>::receive() {
-  std::unique_lock lk(this->data_.mutex);
-  this->data_.receivers_waiting++;
-  this->data_.receiver_entrance.wait(
-      lk, [&] { return this->data_.value_set || this->data_.closed; });
-  this->data_.receivers_waiting--;
-  if (this->data_.closed && !this->data_.value_set) {
+  std::unique_lock lk(this->mutex);
+  this->receivers_waiting++;
+  this->receiver_entrance.wait(lk,
+                               [&] { return this->value_set || this->closed; });
+  this->receivers_waiting--;
+  if (this->closed && !this->value_set) {
     return std::unexpected("channel closed");
   }
 
-  T value_read = std::move(*this->data_.slot);
-  this->data_.slot.reset();
-  this->data_.value_set = false;
-  this->data_.sender_exit.notify_one();
+  T value_read = std::move(*this->slot);
+  this->slot.reset();
+  this->value_set = false;
+  this->sender_exit.notify_one();
   return value_read;
 }
 
 template <typename T> std::expected<T, Error> Channel<T>::try_receive() {
-  std::unique_lock lock(this->data_.mutex);
-  if (this->data_.closed) {
+  std::unique_lock lock(this->mutex);
+  if (this->closed) {
     return std::unexpected("channel closed");
   }
-  if (!this->data_.value_set) {
+  if (!this->value_set) {
     return std::unexpected("cannot receive instantly");
   }
 
-  T value_read = std::move(this->data_.slot.value());
-  this->data_.slot.reset();
-  this->data_.value_set = false;
-  this->data_.sender_exit.notify_one();
+  T value_read = std::move(this->slot.value());
+  this->slot.reset();
+  this->value_set = false;
+  this->sender_exit.notify_one();
   return value_read;
 }
 } // namespace chx::unbuffered
