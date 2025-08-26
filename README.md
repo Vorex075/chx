@@ -1,3 +1,5 @@
+![testing](https://github.com/Vorex075/chx/actions/workflows/tests.yml/badge.svg)
+
 # chx
 A **lightweight go-like channel** library for cpp23+.
 
