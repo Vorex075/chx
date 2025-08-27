@@ -9,11 +9,11 @@ public:
   ReceiverChannel() = delete;
   ~ReceiverChannel() = default;
 
-  std::expected<T, Error> receive() { return this->core_.receive(); }
-  std::expected<T, Error> try_receive() { return this->core_.try_receive(); }
+  std::expected<T, Error> receive() { return this->core_->receive(); }
+  std::expected<T, Error> try_receive() { return this->core_->try_receive(); }
 
-  void close() { this->core_.close(); }
-  bool is_closed() { this->core_.is_closed(); }
+  void close() { this->core_->close(); }
+  bool is_closed() { this->core_->is_closed(); }
 
   friend Channel<T>;
 

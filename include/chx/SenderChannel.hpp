@@ -16,14 +16,14 @@ public:
   std::expected<void, Error> send(const T &value) { return core_->send(value); }
 
   std::expected<void, Error> try_send(T &&value) {
-    return core_->try_send(std::move(std::move(value)));
+    return core_->try_send(std::move(value));
   }
   std::expected<void, Error> try_send(const T &value) {
     return core_->try_send(value);
   }
 
   void close() { this->core_->close(); }
-  bool is_closed() { this->core_->is_closed(); }
+  bool is_closed() { return this->core_->is_closed(); }
 
   friend Channel<T>;
 
