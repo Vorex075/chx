@@ -59,13 +59,14 @@ public:
   std::expected<T, Error> try_receive() { return core_->try_receive(); }
 
   void close() { return core_->close(); }
-  bool is_closed() { return core_->is_closed(); }
+  bool is_closed() const { return core_->is_closed(); }
 
-  friend ReceiverChannel<T>;
-  friend SenderChannel<T>;
+  ReceiverChannel<T> make_receiver() const {
+    return ReceiverChannel<T>(this->core_);
+  }
+  SenderChannel<T> make_sender() const { return SenderChannel<T>(this->core_); }
 
 private:
   std::shared_ptr<ChannelCore<T>> core_;
 };
-
 } // namespace chx
