@@ -13,7 +13,7 @@ public:
   std::expected<T, Error> try_receive() { return this->core_->try_receive(); }
 
   void close() { this->core_->close(); }
-  bool is_closed() { this->core_->is_closed(); }
+  bool is_closed() { return this->core_->is_closed(); }
 
   friend Channel<T>;
 
