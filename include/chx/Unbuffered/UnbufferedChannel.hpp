@@ -1,6 +1,6 @@
 #pragma once
 
-#include "chx/channel.hpp"
+#include "chx/channelCore.hpp"
 #include <condition_variable>
 #include <mutex>
 #include <optional>
@@ -10,9 +10,8 @@ namespace chx::unbuffered {
 template <typename T> class Channel : public chx::ChannelCore<T> {
 public:
   Channel()
-      : chx::Channel<T>(), value_set(false), closed(false),
+      : chx::ChannelCore<T>(), value_set(false), closed(false),
         receivers_waiting(0) {}
-  Channel(const Channel<T> &ch) = delete;
   ~Channel() = default;
 
   std::expected<void, Error> send(const T &value) override;
