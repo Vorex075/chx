@@ -1,17 +1,16 @@
 #pragma once
 
-#include "chx/channelCore.hpp"
-#include <memory>
+#include <expected>
+#include <string>
 
 namespace chx {
 
-template <typename T> class ReceiverChannel;
-template <typename T> class SenderChannel;
+typedef std::string Error;
 
-template <typename T> class Channel {
+template <class T> class ChannelCore {
 public:
-  Channel(std::shared_ptr<ChannelCore<T>> core) : core_(core) {}
-  ~Channel() = default;
+  ChannelCore() = default;
+  virtual ~ChannelCore() = default;
 
   /**
    *  @brief Sends an object through the channel. This method blocks the thread
@@ -20,10 +19,8 @@ public:
    *  @returns `void` if the operation was successful. An `Error` if the
    * operation failed.
    * */
-  std::expected<void, Error> send(T &&value) {
-    return core_->send(std::move(value));
-  }
-  std::expected<void, Error> send(const T &value) { return core_->send(value); }
+  virtual std::expected<void, Error> send(T &&value) = 0;
+  virtual std::expected<void, Error> send(const T &value) = 0;
 
   /**
    *  @brief Sends an object through the channel. This method does not block
@@ -33,12 +30,8 @@ public:
    *  @returns `void` if the operation wasa successful. An `Error` if the
    * operation failed.
    * */
-  std::expected<void, Error> try_send(T &&value) {
-    return core_->try_send(std::move(value));
-  }
-  std::expected<void, Error> try_send(const T &value) {
-    return core_->try_send(value);
-  }
+  virtual std::expected<void, Error> try_send(T &&value) = 0;
+  virtual std::expected<void, Error> try_send(const T &value) = 0;
 
   /**
    *  @brief Receives an object through the channel. This method blocks the
@@ -46,7 +39,7 @@ public:
    *  @returns An object (the one received from the channel), or an `Error` if
    * the operation failed.
    * */
-  std::expected<T, Error> receive() { return core_->receive(); }
+  virtual std::expected<T, Error> receive() = 0;
 
   /**
    *  @brief Receives an object through the channel. This method does not block
@@ -56,17 +49,10 @@ public:
    *  @returns An object (the one received from the channel), or an `Error` if
    * the operation failed.
    * */
-  std::expected<T, Error> try_receive() { return core_->try_receive(); }
+  virtual std::expected<T, Error> try_receive() = 0;
 
-  void close() { return core_->close(); }
-  bool is_closed() const { return core_->is_closed(); }
-
-  ReceiverChannel<T> make_receiver() const {
-    return ReceiverChannel<T>(this->core_);
-  }
-  SenderChannel<T> make_sender() const { return SenderChannel<T>(this->core_); }
-
-private:
-  std::shared_ptr<ChannelCore<T>> core_;
+  virtual void close() = 0;
+  virtual bool is_closed() const = 0;
 };
+
 } // namespace chx
