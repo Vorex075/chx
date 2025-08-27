@@ -52,7 +52,7 @@ public:
   virtual std::expected<T, Error> try_receive() = 0;
 
   virtual void close();
-  virtual bool is_closed();
+  virtual bool is_closed() const;
 };
 
 } // namespace chx
