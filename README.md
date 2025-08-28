@@ -14,8 +14,7 @@ The library includes:
 ---
 ### Future work
 I plan to:
-- Create a `Buffered Channel`, instead of the `ThreadSafeCircularQueue`
-- Add a **select-like** structure.
+- Add iterators for the channels.
 - Add **waitgroup** struct for syncronization.
 
 --- 
