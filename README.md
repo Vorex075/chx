@@ -26,7 +26,7 @@ In order to execute the tests, you will need **cmake 3.28** or above.
 ## Testing
 You can **run all tests** in you local machine easily. Clone the repo and use:
 ``` bash
-make tests
+make test
 ```
 This will **compile all tests** in the `build` directory.
 
