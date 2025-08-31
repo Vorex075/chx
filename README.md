@@ -38,10 +38,13 @@ make run_tests
 
 ---
 ### Installation
-Simply download the compressed headers into your local machine using: `curl -LOJ 'https://github.com/Vorex075/chx/releases/download/v0.1.0/chx-0.1.0-Linux-x86_64.tar.gz'`. (both .tar.gz and .zip files contains the same)
+Simply download the compressed headers into your local machine using: 
+``` bash
+curl -LOJ 'https://github.com/Vorex075/chx/releases/download/v0.1.0/chx-0.1.0-Linux-x86_64.tar.gz'`. (both .tar.gz and .zip files contains the same)
+```
 
-Under `chx-<version>.tar.gz` there are 2 folders: `include` and `lib`. I recommend you to use cmake, with the following lines to add the library to your project:
-```cmake
+Under `chx-<version>.tar.gz` there are 2 folders: `include` and `lib`. I recommend you to use cmake, with the following lines to your `CMakeLists.txt` file to add the library into your project:
+``` Cmake
 # ...
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/dir") # where 'dir' is the directory where the chx library is located
 find_package(chx REQUIRED CONFIG)  
