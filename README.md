@@ -5,13 +5,10 @@ A **lightweight go-like channel** library for cpp23+.
 
 Found this structure from [go](https://go.dev/) and, as a way to learn about concurrency, I tried to build it from scratch.
 
-> [!NOTE]
-> This project is **still in development**, but you can create issues if you encounter any problems or have suggestions.
-
 ---
 The library includes:
-- **Unbuffered_Channel**: This channel will block sender and receiver until the transaction is made
-- **Buffered_Channel**: This channel will only block sender if the internal `buffer` is full, and the receiver if it is empty.
+- **Unbuffered Channel**: This channel will block sender and receiver until the transaction is made
+- **Buffered Channel**: This channel will only block sender if the internal `buffer` is full, and the receiver if it is empty.
 
 ---
 ## Future work
