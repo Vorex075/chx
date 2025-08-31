@@ -1,7 +1,9 @@
 ![testing](https://github.com/Vorex075/chx/actions/workflows/tests.yml/badge.svg)
 
 # chx
-A **lightweight go-like channel** library for cpp23+.
+A **lightweight go-like channel** library for cpp23+. 
+
+Found this structure from [go](https://go.dev/) and, as a way to learn about concurrency, I tried to build it from scratch.
 
 > [!NOTE]
 > This project is **still in development**, but you can create issues if you encounter any problems or have suggestions.
@@ -12,19 +14,19 @@ The library includes:
 - **Buffered_Channel**: This channel will only block sender if the internal `buffer` is full, and the receiver if it is empty.
 
 ---
-### Future work
+## Future work
 I plan to:
 - Add iterators for the channels.
 - Add **waitgroup** struct for syncronization.
 
 --- 
-### Requirements
+## Requirements
 This project requires **cpp23** or above, since it uses `std::expected`.
 In order to execute the tests, you will need **cmake 3.28** or above.
 
 ---
 
-### Testing
+## Testing
 You can **run all tests** in you local machine easily. Clone the repo and use:
 ``` bash
 make tests
@@ -37,7 +39,7 @@ make run_tests
 ```
 
 ---
-### Installation
+## Installation
 Simply download the compressed headers into your local machine using: 
 ``` bash
 curl -LOJ 'https://github.com/Vorex075/chx/releases/download/v0.1.0/chx-0.1.0-Linux-x86_64.tar.gz'`. (both .tar.gz and .zip files contains the same)
@@ -50,3 +52,7 @@ list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/dir") # where 'dir' is the di
 find_package(chx REQUIRED CONFIG)  
 # ...
 ```
+
+## Contributing
+If you'd like to contribute, please fork the repository and open a pull request to the `main` branch.
+
