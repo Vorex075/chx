@@ -48,6 +48,12 @@ install(FILES
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/chx
 )
 
+option(CHX_ENABLE_TESTS "Build and run tests" ON)
+
+if (CHX_ENABLE_TESTS)
+  enable_testing()
+  add_subdirectory(test)
+endif()
 
 # ---- CPack: single archive, unzip-and-use ----
 # Default to a relocatable prefix so the archive unpacks to: chx-<ver>/{include,lib/cmake/chx}
