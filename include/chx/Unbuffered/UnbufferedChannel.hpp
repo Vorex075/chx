@@ -65,7 +65,7 @@ std::expected<void, Error> Channel<T>::send(const T &value) {
 }
 
 template <typename T> std::expected<void, Error> Channel<T>::send(T &&value) {
-  return this->send_(value);
+  return this->send_(std::move(value));
 }
 
 template <typename T>
@@ -75,7 +75,7 @@ std::expected<void, Error> Channel<T>::try_send(const T &value) {
 
 template <typename T>
 std::expected<void, Error> Channel<T>::try_send(T &&value) {
-  return this->try_send_(value);
+  return this->try_send_(std::move(value));
 }
 
 template <typename T>
